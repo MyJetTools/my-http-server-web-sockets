@@ -12,7 +12,7 @@ use crate::{my_web_socket_callback::WebSocketMessage, MyWebSockeCallback, MyWebS
 
 pub async fn handle_web_socket_upgrade(
     req: &mut hyper::Request<hyper::Body>,
-    callback: &Arc<dyn MyWebSockeCallback + Send + Sync + 'static>,
+    callback: Arc<dyn MyWebSockeCallback + Send + Sync + 'static>,
     id: i64,
     addr: std::net::SocketAddr,
 ) -> Result<HttpOkResult, HttpFailResult> {
