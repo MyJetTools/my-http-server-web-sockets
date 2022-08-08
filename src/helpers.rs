@@ -10,9 +10,11 @@ use my_http_server::{HttpFailResult, HttpOkResult, HttpOutput, WebContentType};
 
 use crate::{my_web_socket_callback::WebSocketMessage, MyWebSockeCallback, MyWebSocket};
 
-pub async fn handle_web_socket_upgrade(
+pub async fn handle_web_socket_upgrade<
+    TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static,
+>(
     req: &mut hyper::Request<hyper::Body>,
-    callback: Arc<dyn MyWebSockeCallback + Send + Sync + 'static>,
+    callback: &Arc<TMyWebSockeCallback>,
     id: i64,
     addr: std::net::SocketAddr,
 ) -> Result<HttpOkResult, HttpFailResult> {
@@ -73,10 +75,10 @@ pub async fn handle_web_socket_upgrade(
 }
 
 /// Handle a websocket connection.
-async fn serve_websocket(
+async fn serve_websocket<TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static>(
     my_web_socket: Arc<MyWebSocket>,
     mut read_stream: SplitStream<WebSocketStream<Upgraded>>,
-    callback: Arc<dyn MyWebSockeCallback + Send + Sync + 'static>,
+    callback: Arc<TMyWebSockeCallback>,
 ) -> Result<(), Error> {
     while let Some(message) = read_stream.next().await {
         let result = match message? {
@@ -111,10 +113,10 @@ async fn serve_websocket(
     Ok(())
 }
 
-async fn send_message(
+async fn send_message<TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static>(
     web_socket: Arc<MyWebSocket>,
     message: WebSocketMessage,
-    callback: Arc<dyn MyWebSockeCallback + Send + Sync + 'static>,
+    callback: Arc<TMyWebSockeCallback>,
 ) -> Result<(), String> {
     let result = tokio::spawn(async move {
         callback.on_message(web_socket, message).await;
