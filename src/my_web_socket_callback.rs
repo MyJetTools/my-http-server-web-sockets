@@ -11,7 +11,7 @@ pub enum WebSocketMessage {
 }
 
 #[async_trait::async_trait]
-pub trait MyWebSockeCallback {
+pub trait MyWebSocketCallback {
     async fn connected(&self, my_web_socket: Arc<MyWebSocket>) -> Result<(), HttpFailResult>;
     async fn disconnected(&self, my_web_socket: Arc<MyWebSocket>);
     async fn on_message(&self, my_web_socket: Arc<MyWebSocket>, message: WebSocketMessage);

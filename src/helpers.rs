@@ -8,13 +8,13 @@ use hyper_tungstenite::{
 };
 use my_http_server::{HttpFailResult, HttpOkResult, HttpOutput, WebContentType};
 
-use crate::{my_web_socket_callback::WebSocketMessage, MyWebSockeCallback, MyWebSocket};
+use crate::{my_web_socket_callback::WebSocketMessage, MyWebSocket, MyWebSocketCallback};
 
 pub async fn handle_web_socket_upgrade<
-    TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static,
+    TMyWebSocketCallback: MyWebSocketCallback + Send + Sync + 'static,
 >(
     req: &mut hyper::Request<hyper::Body>,
-    callback: Arc<TMyWebSockeCallback>,
+    callback: Arc<TMyWebSocketCallback>,
     id: i64,
     addr: std::net::SocketAddr,
 ) -> Result<HttpOkResult, HttpFailResult> {
@@ -73,10 +73,10 @@ pub async fn handle_web_socket_upgrade<
 }
 
 /// Handle a websocket connection.
-async fn serve_websocket<TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static>(
+async fn serve_websocket<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync + 'static>(
     my_web_socket: Arc<MyWebSocket>,
     mut read_stream: SplitStream<WebSocketStream<Upgraded>>,
-    callback: Arc<TMyWebSockeCallback>,
+    callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), Error> {
     while let Some(message) = read_stream.next().await {
         let result = match message? {
@@ -111,10 +111,10 @@ async fn serve_websocket<TMyWebSockeCallback: MyWebSockeCallback + Send + Sync +
     Ok(())
 }
 
-async fn send_message<TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static>(
+async fn send_message<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync + 'static>(
     web_socket: Arc<MyWebSocket>,
     message: WebSocketMessage,
-    callback: Arc<TMyWebSockeCallback>,
+    callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), String> {
     let result = tokio::spawn(async move {
         callback.on_message(web_socket, message).await;
