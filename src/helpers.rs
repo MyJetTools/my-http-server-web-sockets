@@ -14,7 +14,7 @@ pub async fn handle_web_socket_upgrade<
     TMyWebSockeCallback: MyWebSockeCallback + Send + Sync + 'static,
 >(
     req: &mut hyper::Request<hyper::Body>,
-    callback: &Arc<TMyWebSockeCallback>,
+    callback: Arc<TMyWebSockeCallback>,
     id: i64,
     addr: std::net::SocketAddr,
 ) -> Result<HttpOkResult, HttpFailResult> {
@@ -38,8 +38,6 @@ pub async fn handle_web_socket_upgrade<
     }
 
     let (response, web_socket) = upgrade_result.unwrap();
-
-    let callback = callback.clone();
 
     tokio::spawn(async move {
         let web_socket = web_socket.await.unwrap();
