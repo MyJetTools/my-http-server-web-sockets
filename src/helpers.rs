@@ -34,6 +34,7 @@ pub async fn handle_web_socket_upgrade<
             status_code: 400,
             content: content.into_bytes(),
             write_telemetry: false,
+            write_to_log: false,
         });
     }
 
