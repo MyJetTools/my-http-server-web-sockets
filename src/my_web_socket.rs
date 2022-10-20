@@ -6,7 +6,7 @@ use hyper_tungstenite::{
     tungstenite::{Error, Message},
     WebSocketStream,
 };
-use my_http_server::{UrlEncodedData, UrlEncodedDataSource};
+use my_http_server::UrlEncodedData;
 use tokio::sync::Mutex;
 
 pub struct MyWebSocket {
@@ -54,7 +54,7 @@ impl MyWebSocket {
     pub fn get_query_string<'s>(&'s self) -> Option<UrlEncodedData<'s>> {
         let str = self.query_string.as_ref()?;
 
-        match UrlEncodedData::new(str, UrlEncodedDataSource::QueryString) {
+        match UrlEncodedData::from_query_string(str) {
             Ok(result) => Some(result),
             Err(_) => {
                 println!("Can not parse query string: {}", str);
