@@ -80,6 +80,7 @@ async fn serve_websocket<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync
     callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), Error> {
     while let Some(message) = read_stream.next().await {
+        println!("WSMessage: {:?}", message);
         let result = match message? {
             Message::Text(msg) => {
                 send_message(
