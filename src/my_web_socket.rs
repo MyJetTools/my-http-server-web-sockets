@@ -43,6 +43,7 @@ impl MyWebSocket {
     }
 
     pub async fn send_message(&self, msg: Message) {
+        println!("Out WSMessage: {:?}", msg);
         let result = self.send_message_and_if_conntext(msg).await;
 
         if let Err(err) = result {

@@ -118,7 +118,6 @@ async fn send_message<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync + 
     message: WebSocketMessage,
     callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), String> {
-    println!("Out WSMessage: {:?}", message);
     let result = tokio::spawn(async move {
         callback.on_message(web_socket, message).await;
     })
