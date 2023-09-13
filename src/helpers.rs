@@ -80,7 +80,7 @@ async fn serve_websocket<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync
     callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), Error> {
     while let Some(message) = read_stream.next().await {
-        println!("WSMessage: {:?}", message);
+        println!("In WSMessage: {:?}", message);
         let result = match message? {
             Message::Text(msg) => {
                 send_message(
@@ -118,6 +118,7 @@ async fn send_message<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync + 
     message: WebSocketMessage,
     callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), String> {
+    println!("Out WSMessage: {:?}", message);
     let result = tokio::spawn(async move {
         callback.on_message(web_socket, message).await;
     })
