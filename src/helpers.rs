@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use futures::{stream::SplitStream, StreamExt};
 use hyper::upgrade::Upgraded;
@@ -17,6 +17,7 @@ pub async fn handle_web_socket_upgrade<
     callback: Arc<TMyWebSocketCallback>,
     id: i64,
     addr: std::net::SocketAddr,
+    disconnect_timeout: Duration,
 ) -> Result<HttpOkResult, HttpFailResult> {
     let query_string = if let Some(query_string) = req.uri().query() {
         Some(query_string.to_string())
@@ -48,7 +49,10 @@ pub async fn handle_web_socket_upgrade<
         let my_web_socket = MyWebSocket::new(id, write, addr, query_string);
         let my_web_socket = Arc::new(my_web_socket);
 
-        callback.connected(my_web_socket.clone()).await.unwrap();
+        callback
+            .connected(my_web_socket.clone(), disconnect_timeout)
+            .await
+            .unwrap();
 
         let serve_socket_result = tokio::spawn(serve_websocket(
             my_web_socket.clone(),
@@ -80,7 +84,6 @@ async fn serve_websocket<TMyWebSocketCallback: MyWebSocketCallback + Send + Sync
     callback: Arc<TMyWebSocketCallback>,
 ) -> Result<(), Error> {
     while let Some(message) = read_stream.next().await {
-        println!("In WSMessage: {:?}", message);
         let result = match message? {
             Message::Text(msg) => {
                 send_message(

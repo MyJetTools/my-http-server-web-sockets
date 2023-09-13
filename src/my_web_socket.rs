@@ -43,7 +43,6 @@ impl MyWebSocket {
     }
 
     pub async fn send_message(&self, msg: Message) {
-        println!("Out WSMessage: {:?}", msg);
         let result = self.send_message_and_if_conntext(msg).await;
 
         if let Err(err) = result {
@@ -65,7 +64,6 @@ impl MyWebSocket {
     }
 
     pub async fn disconnect(&self) {
-        println!("WS Disconnect is invoked");
         self.connected
             .store(false, std::sync::atomic::Ordering::SeqCst);
         let mut write_access = self.write_stream.lock().await;
