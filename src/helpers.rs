@@ -30,13 +30,13 @@ pub async fn handle_web_socket_upgrade<
     if let Err(err) = upgrade_result {
         let content = format!("Can not upgrade websocket. Reason: {}", err);
         println!("{}", content);
-        return Err(HttpFailResult {
-            content_type: WebContentType::Text,
-            status_code: 400,
-            content: content.into_bytes(),
-            write_telemetry: false,
-            write_to_log: false,
-        });
+        return Err(HttpFailResult::new(
+            WebContentType::Text,
+            400,
+            content.into_bytes(),
+            false,
+            false,
+        ));
     }
 
     let (response, web_socket) = upgrade_result.unwrap();
@@ -71,10 +71,7 @@ pub async fn handle_web_socket_upgrade<
         }
     });
 
-    return Ok(HttpOkResult {
-        write_telemetry: false,
-        output: HttpOutput::Raw(response),
-    });
+    HttpOutput::Raw(response).into_ok_result(false)
 }
 
 /// Handle a websocket connection.
